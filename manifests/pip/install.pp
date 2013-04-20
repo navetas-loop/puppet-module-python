@@ -1,13 +1,18 @@
 define python::pip::install (
   $venv,
+  $package = undef,
   $ensure = present,
   $owner  = undef,
   $group  = undef
 ) {
+  $pkgspec = $package ? {
+    undef => $name,
+    default => $package,
+  }
   # Match against whole line if we provide a given version:
-  $grep_regex = $name ? {
-    /==/    => "^${name}\$",
-    default => "^${name}==",
+  $grep_regex = $pkgspec ? {
+    /==/    => "^${pkgspec}\$",
+    default => "^${pkgspec}==",
   }
 
   Exec {
@@ -18,16 +23,16 @@ define python::pip::install (
 
   if $ensure == 'present' {
     exec { "pip install $name":
-      command => "$venv/bin/pip install $name",
+      command => "$venv/bin/pip install $pkgspec",
       unless  => "$venv/bin/pip freeze | grep -e $grep_regex"
     }
   } elsif $ensure == 'latest' {
     exec { "pip install $name":
-      command => "$venv/bin/pip install -U $name",
+      command => "$venv/bin/pip install -U $pkgspec",
     }
   } else {
     exec { "pip install $name":
-      command => "$venv/bin/pip uninstall $name",
+      command => "$venv/bin/pip uninstall $pkgspec",
       onlyif  => "$venv/bin/pip freeze | grep -e $grep_regex"
     }
   }
