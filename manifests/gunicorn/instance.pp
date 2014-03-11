@@ -51,18 +51,20 @@ define python::gunicorn::instance($venv,
 
   if $is_present {
     python::pip::install {
-      "$gunicorn_package":
+      "${name}-gunicorn":
         ensure => $ensure,
         venv => $venv,
+        package => $gunicorn_package,
         owner => $owner,
         group => $group,
         require => Python::Venv::Isolate[$venv],
         before => File[$initscript];
 
       # for --name support in gunicorn:
-      "setproctitle":
+      "${name}-setproctitle":
         ensure => $ensure,
         venv => $venv,
+        package => "setproctitle",
         owner => $owner,
         group => $group,
         require => Python::Venv::Isolate[$venv],
