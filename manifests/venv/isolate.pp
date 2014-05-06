@@ -4,7 +4,11 @@ define python::venv::isolate($ensure=present,
   $root = $name
   $owner = $python::venv::owner
   $group = $python::venv::group
-  $python = $python::dev::python
+
+  $python = $version ? {
+    'latest' => "python",
+    default => "python${version}",
+  }
 
   if $ensure == 'present' {
     # Parent directory of root directory. /var/www for /var/www/blog
