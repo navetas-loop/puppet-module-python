@@ -1,7 +1,6 @@
 define python::venv::isolate($ensure=present,
                              $version=latest,
-                             $requirements=undef,
-                             $umask=0002) {
+                             $requirements=undef) {
   $root = $name
   $owner = $python::venv::owner
   $group = $python::venv::group
