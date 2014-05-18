@@ -4,6 +4,7 @@ define python::venv::isolate($ensure=present,
   $root = $name
   $owner = $python::venv::owner
   $group = $python::venv::group
+  $umask = $python::venv::umask
 
   $python = $version ? {
     'latest' => "python",
@@ -33,6 +34,7 @@ define python::venv::isolate($ensure=present,
       command => "virtualenv -p `which ${python}` ${root}",
       creates => $root,
       notify => Exec["update distribute and pip in $root"],
+      umask => $umask,
       require => [File[$root_parent],
                   Package["python-virtualenv"]],
     }
@@ -41,6 +43,7 @@ define python::venv::isolate($ensure=present,
     # from the one that is in repos on most systems:
     exec { "update distribute and pip in $root":
       command => "$root/bin/pip install -U pip distribute",
+      umask => $umask,
       refreshonly => true,
     }
 
