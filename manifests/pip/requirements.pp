@@ -1,10 +1,16 @@
 # Installs packages in a requirements file for a virtualenv.
 # Pip tries to upgrade packages when the requirements file changes.
-define python::pip::requirements($venv, $owner=undef, $group=undef) {
+define python::pip::requirements($venv, $owner=undef, $group=undef, $alternative_index=undef) {
   $requirements = $name
   $requirements_path = split($requirements, '/')
   $requirements_dir = inline_template("<%= (@requirements_path).first(@requirements_path.size() - 1).join('/') %>")
   $checksum = "$venv/requirements.checksum"
+
+  $pip_install_base_command = "$venv/bin/pip install --download-cache=$venv/cache -Ur $requirements"
+  $pip_install_command = $alternative_index ? {
+    undef   => $pip_install_base_command,
+    default => "$pip_install_base_command --no-index --find-links $alternative_index",
+  }
 
   Exec {
     user => $owner,
@@ -32,7 +38,7 @@ define python::pip::requirements($venv, $owner=undef, $group=undef) {
   }
 
   exec { "update $name requirements":
-    command => "$venv/bin/pip install --download-cache=$venv/cache -Ur $requirements",
+    command => $pip_install_command,
     cwd => $requirements_dir,
     timeout => 1800, # sometimes, this can take a while
     require => File[$requirements],

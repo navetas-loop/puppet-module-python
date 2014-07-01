@@ -1,6 +1,7 @@
 define python::venv::isolate($ensure=present,
                              $version=latest,
-                             $requirements=undef) {
+                             $requirements=undef,
+                             $alternative_index=undef) {
   $root = $name
   $owner = $python::venv::owner
   $group = $python::venv::group
@@ -52,6 +53,7 @@ define python::venv::isolate($ensure=present,
         venv => $root,
         owner => $owner,
         group => $group,
+        alternative_index => $alternative_index,
         require => Exec["python::venv $root"],
       }
     }
